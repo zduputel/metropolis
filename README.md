@@ -1,2 +1,2 @@
 # ProbabilisticSourceInversion
-Simple bayesian source inversion toy model
+A simple bayesian source inversion toy model
