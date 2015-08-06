@@ -1,7 +1,10 @@
 # Metropolis
 A simple metropolis sampler
 
-### Metropolis class
+### Some instructions
+
+To use the metropolis sampler, the metropolis directory must be placed in a directory pointed by the PYTHONPATH environment variable.
+
 The metropolis class can be imported using
 
 ```
