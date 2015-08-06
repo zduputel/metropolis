@@ -2,7 +2,11 @@
 A simple metropolis sampler
 
 ### Metropolis class
-The metropolis class is included in Metropolis.py
+The metropolis class can be imported using
+
+```
+import metropolis
+```
 
 ### Toy models
-InfFault_burnin.py and InfFault_hierarchical.py are simple toy problems for a 1D locked fault problem 
+Simple toy problems for 1D locked fault models are included in EXAMPLES
