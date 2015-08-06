@@ -1,5 +1,5 @@
 '''
-Simple metropolis sampler class
+A simple metropolis sampler class
 '''
 
 import numpy as np
