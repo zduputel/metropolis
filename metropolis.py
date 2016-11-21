@@ -5,7 +5,7 @@ A simple metropolis sampler class
 import numpy as np
 np.random.seed(0)
 
-def metropolis(n_samples,fun_calcLLK,fun_verify,data,m_ini,prior_bounds,prop_cov):
+def metropolis(n_samples,fun_calcLLK,fun_verify,data,m_ini,prior_bounds,prop_cov,verbose=False):
 
     ''' 
     Metropolis algorithm 
@@ -30,8 +30,12 @@ def metropolis(n_samples,fun_calcLLK,fun_verify,data,m_ini,prior_bounds,prop_cov
 
     # Iteration loop
     count = 0 # Number of accepted models
+    verbose_count = int(n_samples/10)
     for i in range(1,n_samples): 
-    
+
+        # Verbose
+        if verbose and not i%verbose_count:
+            print('%d%%'%(int(100*i/n_samples)))
         # Random walk
         Mnew = M[i-1,:].copy()
         Mnew += np.random.multivariate_normal(prop_mean,prop_cov)
