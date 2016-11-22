@@ -165,7 +165,7 @@ def plot_result(M,mtarget,show_ini=True,title = None):
 
 ## Number of samples 
 n_samples = 100000
-
+n_burn    = 2000
 
 ## Target model (Actual "true" solution) 
 
@@ -193,7 +193,7 @@ m_ini = np.array((0.57,1.32,0.01))
 
 
 ## Covariance of the proposal PDF
-prop_sigma = np.array([0.035,0.035,0.0005])
+prop_sigma = np.array([0.01,0.05,0.002])
 prop_cov   = np.diag(prop_sigma*prop_sigma)
 
 
@@ -218,12 +218,9 @@ start_time = time.time()
 M,LLK,accepted = metropolis(n_samples,calcLLK,verify,data_dict,m_ini,prior_bounds,prop_cov)
 run_time = time.time() - start_time
 
-# Burn-in number
-iburn = np.where(LLK>=LLK[n_samples/2:].mean())[0][0]
-
 # Mean/STD
-M_mean = M[iburn:,:].mean(axis=0)
-M_std  = M[iburn:,:].std(axis=0)
+M_mean = M[n_burn:,:].mean(axis=0)
+M_std  = M[n_burn:,:].std(axis=0)
 
 
 ## Output display & figures
@@ -244,17 +241,47 @@ ax.legend(('Data','Predictions'))
 ax.set_xlabel('Distance / Locking depth')
 ax.set_ylabel('Velocity / Slip rate')
 
+# Plot sample chains
+plt.figure(facecolor='w')
+xsample = np.arange(n_samples)
+ax=plt.subplot(311)
+ax.plot(xsample[:n_burn],M[:n_burn,0],'r-',label='Burn-in period')
+ax.plot(xsample[n_burn:],M[n_burn:,0],'b-',label='Post burn-in Samples')
+plt.legend(loc='best')
+ax.set_ylabel('Slip rate')
+ax=plt.subplot(312)
+ax.plot(xsample[:n_burn],M[:n_burn,1],'r-',label='Burn-in period')
+ax.plot(xsample[n_burn:],M[n_burn:,1],'b-',label='Post burn-in Samples')
+ax.set_ylabel('Locking depth')
+ax=plt.subplot(312)
+ax.plot(xsample[:n_burn],M[:n_burn,2],'r-',label='Burn-in period')
+ax.plot(xsample[n_burn:],M[n_burn:,2],'b-',label='Post burn-in Samples')
+ax.set_ylabel('Data uncertainty')
+ax.set_xlabel('Sample')
+
+
+# Autocorrelation
+import scipy.stats
+lags = np.arange(1, 100)
+plt.figure(facecolor='w')
+for i in range(M.shape[1]):
+    ax = plt.subplot(3,1,i+1)
+    ax.plot(lags, [scipy.stats.pearsonr(M[n_burn:-l,i],M[n_burn+l:,i])[0] for l in lags])
+    plt.ylim([-0.01,1.])
+    plt.ylabel('autocorrelation param %d'%(i+1))
+plt.xlabel('Sample lag')    
+
 # Burn-in period
 plt.figure(facecolor='w')
 ax=plt.subplot(111)
-xgen = np.arange(n_samples)
-ax.semilogx(xgen[:iburn+1],LLK[:iburn+1],'r-')
-ax.semilogx(xgen[iburn:],LLK[iburn:],'b-')
+xsample = np.arange(n_samples)
+ax.plot(xsample[:n_burn+1],LLK[:n_burn+1],'r-')
+ax.plot(xsample[n_burn:],LLK[n_burn:],'b-')
 ax.legend(('Burn-in period','Post burn-in Samples'),loc='lower right')
 ax.set_xlabel('Generations')
 ax.set_ylabel('Log-Likelihood')
 
 # Plot results with burn-in
-plot_result(M[iburn:,:],mtarget,False,'Hierarchical Locked fault model - Burn in: %d samples'%(iburn))
+plot_result(M[n_burn:,:],mtarget,False,'Hierarchical Locked fault model - Burn in: %d samples'%(n_burn))
 
 plt.show()
